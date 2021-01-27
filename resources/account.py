@@ -4,13 +4,12 @@ import pymysql
 import traceback
 
 parser = reqparse.RequestParser()
-parser.add_argument('name')
-parser.add_argument('gender')
-parser.add_argument('birth')
-parser.add_argument('note')
+parser.add_argument('balance')
+parser.add_argument('account_number')
+parser.add_argument('user_id')
 parser.add_argument('deleted')
 
-class User(Resource):
+class Account(Resource):
     def db_init(self):
         db = pymysql.connect(
             host = r'localhost',
@@ -24,31 +23,30 @@ class User(Resource):
 
     def get(self, id):
         db, cursor = self.db_init()
-        sql = """Select * From flask.users Where id = '{}' and deleted is not True""".format(id)
+        sql = """Select * From flask.accounts Where id = '{}' and deleted is not True""".format(id)
         cursor.execute(sql)
         db.commit()
-        user = cursor.fetchone()
+        account = cursor.fetchone()
         db.close()
 
-        return jsonify({'data': user})
+        return jsonify({'data': account})
 
     def patch(self, id):
         db, cursor = self.db_init()
         arg = parser.parse_args()
-        user = {
-            'name': arg['name'],
-            'gender': arg['gender'],
-            'birth': arg['birth'],
-            'note': arg['note'],
+        account = {
+            'balance': arg['balance'],
+            'account_number': arg['account_number'],
+            'user_id': arg['user_id'],
         }        
         query = []
         
-        for key, value in user.items():
+        for key, value in account.items():
             if value != None:
                 query.append(key + " = " + "'{}'".format(value))
         query = ", ".join(query)
         sql = """
-            UPDATE `flask`.`users` SET {} WHERE (`id` = '{}');
+            UPDATE `flask`.`accounts` SET {} WHERE (`id` = '{}');
         """.format(query, id)
 
         response = {}
@@ -65,8 +63,9 @@ class User(Resource):
 
     def delete(self, id):
         db, cursor = self.db_init()
+        
         sql = """
-            UPDATE `flask`.`users` SET deleted = True WHERE (`id` = '{}');
+            UPDATE `accounts` SET `deleted` = '1' WHERE `accounts`.`id` = {};
         """.format(id)
 
         response = {}
@@ -81,7 +80,7 @@ class User(Resource):
         db.close()
         return jsonify(response)
 
-class Users(Resource):
+class Accounts(Resource):
     def db_init(self):
         db = pymysql.connect(
             host = r'localhost',
@@ -95,31 +94,27 @@ class Users(Resource):
 
     def get(self):
         db, cursor = self.db_init()
-        arg = parser.parse_args()
-        sql = 'Select * From flask.users where deleted is not True'
-        if arg['gender'] != None:
-            sql += ' and gender = "{}"'.format(arg['gender'])
+        sql = 'Select * From flask.accounts where deleted is not True'
         cursor.execute(sql)
         db.commit()
-        users = cursor.fetchall()
+        accounts = cursor.fetchall()
         db.close()
 
-        return jsonify({'data': users})
+        return jsonify({'data': accounts})
 
     def post(self):
         db, cursor = self.db_init()
         arg = parser.parse_args()
-        user = {
-            'name': arg['name'],
-            'gender': arg['gender'] or 0,
-            'birth': arg['birth'] or '1900-01-01',
-            'note': arg['note'] or 0,
-            'deleted': arg['deleted'] or 0
+        account = {
+            'balance': arg['balance'],
+            'account_number': arg['account_number'],
+            'user_id': arg['user_id'],
+            'deleted': arg['deleted'] or 0,
         }
 
         sql = """
-            INSERT INTO `users` (`name`, `gender`, `birth`, `note`, `deleted`) VALUES ('{}', '{}', '{}', '{}', '{}');
-        """.format(user['name'], user['gender'], user['birth'], user['note'], user['deleted'])
+            INSERT INTO `accounts` (`balance`, `account_number`, `user_id`, `deleted`) VALUES ('{}', '{}', '{}', '{}');
+        """.format(account['balance'], account['account_number'], account['user_id'], account['deleted'])
 
         response = {}
         try:
