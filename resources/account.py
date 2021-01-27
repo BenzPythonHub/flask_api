@@ -21,7 +21,7 @@ class Account(Resource):
         cursor = db.cursor(pymysql.cursors.DictCursor)
         return db, cursor
 
-    def get(self, id):
+    def get(self, id, user_id):
         db, cursor = self.db_init()
         sql = """Select * From flask.accounts Where id = '{}' and deleted is not True""".format(id)
         cursor.execute(sql)
@@ -61,7 +61,7 @@ class Account(Resource):
         db.close()
         return jsonify(response)
 
-    def delete(self, id):
+    def delete(self, id, user_id):
         db, cursor = self.db_init()
         
         sql = """
@@ -92,9 +92,9 @@ class Accounts(Resource):
         cursor = db.cursor(pymysql.cursors.DictCursor)
         return db, cursor
 
-    def get(self):
+    def get(self, user_id):
         db, cursor = self.db_init()
-        sql = 'Select * From flask.accounts where deleted is not True'
+        sql = 'Select * From flask.accounts where user_id = "{}" and deleted is not True'.format(user_id)
         cursor.execute(sql)
         db.commit()
         accounts = cursor.fetchall()

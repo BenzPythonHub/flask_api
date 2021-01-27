@@ -10,10 +10,8 @@ api = Api(app)
 api.add_resource(Users, '/users')
 api.add_resource(User, '/user/<id>')
 
-api.add_resource(Accounts, '/accounts')
-api.add_resource(Account, '/account/<id>')
-
-
+api.add_resource(Accounts, '/user/<user_id>/accounts')
+api.add_resource(Account, '/user/<user_id>/account/<id>')
 
 
 @app.route('/')
