@@ -80,7 +80,10 @@ class Users(Resource):
 
     def get(self):
         db, cursor = self.db_init()
+        arg = parser.parse_args()
         sql = 'Select * From api.users where deleted is not True'
+        if arg['gender'] != None:
+            sql += ' and gender = "{}"'.format(arg['gender'])
         cursor.execute(sql)
         db.commit()
         users = cursor.fetchall()
