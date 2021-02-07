@@ -13,10 +13,10 @@ parser.add_argument('note')
 class Users(Resource):
     def db_init(self):
         db = pymysql.connect(
-            host = r'localhost',
-            user =  r'flask',
-            password =  r'HFY3m2Ce5E4wCfdM',
-            database =  r'flask',
+            host = r'127.0.0.1',
+            user =  r'root',
+            password =  r'mysql',
+            database =  r'api',
             )
 
         cursor = db.cursor(pymysql.cursors.DictCursor)
@@ -24,7 +24,7 @@ class Users(Resource):
 
     def get(self):
         db, cursor = self.db_init()
-        sql = 'Select * From flask.users'
+        sql = 'Select * From api.users'
         cursor.execute(sql)
         db.commit()
         users = cursor.fetchall()
@@ -39,7 +39,7 @@ class Users(Resource):
             'name': arg['name'],
             'gender': arg['gender'] or 0,
             'birth': arg['birth'] or '1900-01-01',
-            'note': arg['note'] or 0,
+            'note': arg['note'] or None,
         }
 
         sql = """
